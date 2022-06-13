@@ -24,14 +24,14 @@ type MicroserverGen8Collector struct {
 	MicroserverGen8
 	authHeader       string
 	deleteSessionURI string
-	client 			 *http.Client
+	client           *http.Client
 }
 
 type MicroserverGen8 struct {
-	url       string
-	login     string
-	passwd    string
-	verifySSL bool
+	url      string
+	login    string
+	passwd   string
+	insecure bool
 }
 
 type Fan struct {
@@ -150,7 +150,7 @@ func (m *MicroserverGen8Collector) GetRESTApiData() (FansArray, TemperaturesArra
 	if res.StatusCode != 200 {
 		log.Fatalf("Error Request: %v\n, status: %d\n", request, res.StatusCode)
 	}
-	
+
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Fatalln(err)
@@ -161,7 +161,7 @@ func (m *MicroserverGen8Collector) GetRESTApiData() (FansArray, TemperaturesArra
 	if err != nil {
 		log.Fatalln(err)
 	}
-	
+
 	temperaturesArray := TemperaturesArray{}
 	err = json.Unmarshal(body, &temperaturesArray)
 	if err != nil {
@@ -175,7 +175,7 @@ func NewMicroserverGen8Collector(ms MicroserverGen8) *MicroserverGen8Collector {
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: !ms.verifySSL,
+				InsecureSkipVerify: ms.insecure,
 			},
 		},
 	}
@@ -189,7 +189,7 @@ func NewMicroserverGen8Collector(ms MicroserverGen8) *MicroserverGen8Collector {
 	fmt.Printf("authHeader: %s, deletesessionURI: %s\n", authHeader, deleteSessionURI)
 	msc.authHeader = authHeader
 	msc.deleteSessionURI = deleteSessionURI
-	
+
 	return msc
 }
 
@@ -225,10 +225,10 @@ func (m MicroserverGen8Collector) Collect(ch chan<- prometheus.Metric) {
 func main() {
 	cfg := GetConfig()
 	server := MicroserverGen8{
-		url:       cfg.Url,
-		login:     cfg.Login,
-		passwd:    cfg.Passwd,
-		verifySSL: *cfg.VerifySSL,
+		url:      cfg.Url,
+		login:    cfg.Login,
+		passwd:   cfg.Passwd,
+		insecure: cfg.Insecure,
 	}
 
 	msCollector := NewMicroserverGen8Collector(server)
