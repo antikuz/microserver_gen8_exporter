@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
@@ -222,16 +221,37 @@ func (m MicroserverGen8Collector) Collect(ch chan<- prometheus.Metric) {
 		)
 	}
 	for _, temperature := range temperaturesArray.Temperatures {
+		var state float64
+		if  temperature.State == "Enabled" {
+			state = 1
+		} else {
+			state = 0
+		}
+
 		ch <- prometheus.MustNewConstMetric(
-			temperatureDesc,
+			sensorStatusDesc,
 			prometheus.GaugeValue,
-			float64(temperature.CurrentReading),
+			state,
 			temperature.Name,
-			strconv.Itoa(temperature.Number),
 			temperature.Health,
-			temperature.State,
-			strconv.Itoa(temperature.UpperThresholdCritical),
-			strconv.Itoa(temperature.UpperThresholdFatal),
+		)
+		ch <- prometheus.MustNewConstMetric(
+			sensorTemperatureDesc,
+			prometheus.GaugeValue,
+			temperature.CurrentReading,
+			temperature.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			sensorTemperatureUpperCriticalDesc,
+			prometheus.GaugeValue,
+			temperature.UpperThresholdCritical,
+			temperature.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			sensorTemperatureUpperFatalDesc,
+			prometheus.GaugeValue,
+			temperature.UpperThresholdCritical,
+			temperature.Name,
 		)
 	}
 }
