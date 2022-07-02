@@ -62,22 +62,22 @@ type TemperaturesArray struct {
 
 var (
 	sensorStatusDesc = prometheus.NewDesc(
-		"microserver_gen8_temperature",
+		"microserver_gen8_sensor_state",
 		"Temperatures",
 		[]string{"name", "health"}, nil,
 	)
 	sensorTemperatureDesc = prometheus.NewDesc(
-		"microserver_gen8_temperature",
+		"microserver_gen8_sensor_temperature",
 		"Temperatures",
 		[]string{"name"}, nil,
 	)
 	sensorTemperatureUpperCriticalDesc = prometheus.NewDesc(
-		"microserver_gen8_temperature",
+		"microserver_gen8_sensor_temperature_critical",
 		"Temperatures",
 		[]string{"name"}, nil,
 	)
 	sensorTemperatureUpperFatalDesc = prometheus.NewDesc(
-		"microserver_gen8_temperature",
+		"microserver_gen8_sensor_temperature_fatal",
 		"Temperatures",
 		[]string{"name"}, nil,
 	)
