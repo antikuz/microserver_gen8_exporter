@@ -45,11 +45,11 @@ type FansArray struct {
 }
 
 type Temperature struct {
-	CurrentReading         int    `json:"CurrentReading"`
+	CurrentReading         float64    `json:"CurrentReading"`
 	Name                   string `json:"Name"`
 	Status                 `json:"status,omitempty"`
-	UpperThresholdCritical int `json:"UpperThresholdCritical"`
-	UpperThresholdFatal    int `json:"UpperThresholdFatal"`
+	UpperThresholdCritical float64 `json:"UpperThresholdCritical"`
+	UpperThresholdFatal    float64 `json:"UpperThresholdFatal"`
 }
 
 type Status struct {
