@@ -47,7 +47,6 @@ type FansArray struct {
 type Temperature struct {
 	CurrentReading         int    `json:"CurrentReading"`
 	Name                   string `json:"Name"`
-	Number                 int    `json:"Number"`
 	Status                 `json:"status,omitempty"`
 	UpperThresholdCritical int `json:"UpperThresholdCritical"`
 	UpperThresholdFatal    int `json:"UpperThresholdFatal"`
@@ -63,10 +62,25 @@ type TemperaturesArray struct {
 }
 
 var (
-	temperatureDesc = prometheus.NewDesc(
+	sensorStatusDesc = prometheus.NewDesc(
 		"microserver_gen8_temperature",
 		"Temperatures",
-		[]string{"name", "number", "health", "state", "upper_threshold_critical", "upper_threshold_fatal"}, nil,
+		[]string{"name", "health"}, nil,
+	)
+	sensorTemperatureDesc = prometheus.NewDesc(
+		"microserver_gen8_temperature",
+		"Temperatures",
+		[]string{"name"}, nil,
+	)
+	sensorTemperatureUpperCriticalDesc = prometheus.NewDesc(
+		"microserver_gen8_temperature",
+		"Temperatures",
+		[]string{"name"}, nil,
+	)
+	sensorTemperatureUpperFatalDesc = prometheus.NewDesc(
+		"microserver_gen8_temperature",
+		"Temperatures",
+		[]string{"name"}, nil,
 	)
 	fanUsageDesc = prometheus.NewDesc(
 		"microserver_fan_usage",
