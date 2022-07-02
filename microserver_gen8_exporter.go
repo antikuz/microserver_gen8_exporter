@@ -43,7 +43,7 @@ type FansArray struct {
 	Fans []Fan `json:"Fans"`
 }
 
-type Temperature struct {
+type TemperatureSensor struct {
 	CurrentReading         float64    `json:"CurrentReading"`
 	Name                   string `json:"Name"`
 	Status                 `json:"status,omitempty"`
@@ -56,8 +56,8 @@ type Status struct {
 	State  string `json:"state"`
 }
 
-type TemperaturesArray struct {
-	Temperatures []Temperature `json:"temperatures"`
+type TemperatureSensorsArray struct {
+	Sensors []TemperatureSensor `json:"temperatures"`
 }
 
 var (
@@ -145,7 +145,7 @@ func (m *MicroserverGen8Collector) close() error {
 	return nil
 }
 
-func (m *MicroserverGen8Collector) GetRESTApiData() (FansArray, TemperaturesArray) {
+func (m *MicroserverGen8Collector) GetRESTApiData() (FansArray, TemperatureSensorsArray) {
 	url := m.url + urnThermal
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -175,13 +175,13 @@ func (m *MicroserverGen8Collector) GetRESTApiData() (FansArray, TemperaturesArra
 		log.Fatalln(err)
 	}
 
-	temperaturesArray := TemperaturesArray{}
-	err = json.Unmarshal(body, &temperaturesArray)
+	temperatureSensorsArray := TemperatureSensorsArray{}
+	err = json.Unmarshal(body, &temperatureSensorsArray)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	return fansArray, temperaturesArray
+	return fansArray, temperatureSensorsArray
 }
 
 func NewMicroserverGen8Collector(ms MicroserverGen8) *MicroserverGen8Collector {
@@ -211,7 +211,7 @@ func (m MicroserverGen8Collector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (m MicroserverGen8Collector) Collect(ch chan<- prometheus.Metric) {
-	fansArray, temperaturesArray := m.GetRESTApiData()
+	fansArray, temperatureSensorsArray := m.GetRESTApiData()
 	for _, fan := range fansArray.Fans {
 		ch <- prometheus.MustNewConstMetric(
 			fanUsageDesc,
@@ -220,9 +220,9 @@ func (m MicroserverGen8Collector) Collect(ch chan<- prometheus.Metric) {
 			fan.Name, fan.Health, fan.State,
 		)
 	}
-	for _, temperature := range temperaturesArray.Temperatures {
+	for _, sensor := range temperatureSensorsArray.Sensors {
 		var state float64
-		if  temperature.State == "Enabled" {
+		if  sensor.State == "Enabled" {
 			state = 1
 		} else {
 			state = 0
@@ -232,26 +232,26 @@ func (m MicroserverGen8Collector) Collect(ch chan<- prometheus.Metric) {
 			sensorStatusDesc,
 			prometheus.GaugeValue,
 			state,
-			temperature.Name,
-			temperature.Health,
+			sensor.Name,
+			sensor.Health,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			sensorTemperatureDesc,
 			prometheus.GaugeValue,
-			temperature.CurrentReading,
-			temperature.Name,
+			sensor.CurrentReading,
+			sensor.Name,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			sensorTemperatureUpperCriticalDesc,
 			prometheus.GaugeValue,
-			temperature.UpperThresholdCritical,
-			temperature.Name,
+			sensor.UpperThresholdCritical,
+			sensor.Name,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			sensorTemperatureUpperFatalDesc,
 			prometheus.GaugeValue,
-			temperature.UpperThresholdCritical,
-			temperature.Name,
+			sensor.UpperThresholdCritical,
+			sensor.Name,
 		)
 	}
 }
